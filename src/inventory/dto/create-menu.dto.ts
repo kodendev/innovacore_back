@@ -1,9 +1,11 @@
 
-import { IsString, IsNumber, IsPositive, Min, isPositive } from "class-validator"
+
+import { Type } from "class-transformer";
+import { ValidateNested, IsArray, IsString, IsNumber, IsPositive, Min } from "class-validator";
+import { CreateMenuProductItemDto } from "./CreateMenuProductItem.dto";
 
 export class CreateMenuDto {
     @IsNumber()
-    @Min(0)
     @IsPositive()
     quantity: number;
 
@@ -12,4 +14,13 @@ export class CreateMenuDto {
 
     @IsString()
     description: string;
+
+    @IsNumber()
+    @IsPositive()
+    menuTypeId: number;
+
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => CreateMenuProductItemDto)
+    menuProducts: CreateMenuProductItemDto[];
 }

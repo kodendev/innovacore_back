@@ -1,6 +1,6 @@
 import { IsString } from "class-validator";
 
-export class CreateMenuTypes {
+export class CreateMenuTypesDto {
     @IsString()
     name: string
 }

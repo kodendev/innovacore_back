@@ -5,9 +5,16 @@ import { ProductController } from './cotrollers/products.controller';
 import { ProductService } from './services/products.service';
 import { Product } from './entities/products.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Menu } from './entities/menu.entity';
+import { MenuController, MenuTypeController } from './cotrollers/menu.controller';
+import { MenuService } from './services/menu.service';
+import { MenuTypeService } from './services/menu_type.service';
+import { MenuType } from './entities/menu_types.entity';
+import { MenuProductService } from './services/menu_product.service';
+import { MenuProduct } from './entities/menu_product.entity';
 @Module({
-  imports: [TypeOrmModule.forFeature([Product])],
-  controllers: [InventoryController, ProductController],
-  providers: [InventoryService, ProductService],
+  imports: [TypeOrmModule.forFeature([Product, Menu, MenuType, MenuProduct])],
+  controllers: [InventoryController, ProductController, MenuController, MenuTypeController],
+  providers: [InventoryService, ProductService, MenuService, MenuTypeService, MenuProductService],
 })
 export class InventoryModule { }
