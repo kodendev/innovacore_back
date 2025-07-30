@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { InventoryService } from './inventory.service';
 import { InventoryController } from './inventory.controller';
-import { ProductController } from './cotrollers/products.controller';
+import { ProductController } from './controllers/products.controller';
 import { ProductService } from './services/products.service';
 import { Product } from './entities/products.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Menu } from './entities/menu.entity';
-import { MenuController, MenuTypeController } from './cotrollers/menu.controller';
+import { MenuController, MenuTypeController } from './controllers/menu.controller';
 import { MenuService } from './services/menu.service';
 import { MenuTypeService } from './services/menu_type.service';
 import { MenuType } from './entities/menu_types.entity';
