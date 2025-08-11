@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -20,6 +21,7 @@ import { CreateMenuDto } from '../dto/create-menu.dto';
 import { MenuTypeService } from '../services/menu_type.service';
 import { CreateMenuTypesDto } from '../dto/create-menu-types.dto';
 import { ConsumeMenuDto } from '../dto/consume-menu.dto';
+import { UpdateMenuDto } from '../dto/update-menu.dto';
 
 @ApiTags('Menu')
 @Controller('menu')
@@ -97,26 +99,24 @@ export class MenuController {
     return this.menuService.consumeMenu(consumeMenuDto);
   }
 
+  //Actualizar campos de un menú sin productos
   @Put(':id')
-  @ApiOperation({ summary: 'Actualizar un menú existente' })
-  @ApiParam({ name: 'id', description: 'ID del menú a actualizar' })
-  @ApiResponse({
-    status: 200,
-    description: 'Menú actualizado correctamente',
+  @ApiOperation({
+    summary: 'Actualizar datos básicos de un menú (sin productos)',
   })
-  @ApiResponse({
-    status: 400,
-    description: 'Datos inválidos en el cuerpo de la solicitud',
+  @ApiParam({
+    name: 'id',
+    description: 'ID del menú a actualizar',
+    type: Number,
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Menú no encontrado',
-  })
-  update(
-    @Param('id') id: number,
-    @Body() updateMenuDto: Partial<CreateMenuDto>,
+  @ApiBody({ type: UpdateMenuDto })
+  @ApiResponse({ status: 200, description: 'Menú actualizado correctamente' })
+  @ApiResponse({ status: 404, description: 'Menú no encontrado' })
+  updateMenu(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateMenuDto: UpdateMenuDto,
   ) {
-    return this.menuService.update(Number(id), updateMenuDto);
+    return this.menuService.updateMenuBasicInfo(id, updateMenuDto);
   }
 
   @Delete(':id')

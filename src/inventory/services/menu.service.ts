@@ -10,6 +10,7 @@ import { Menu } from '../entities/menu.entity';
 import { CreateMenuDto } from '../dto/create-menu.dto';
 import { MenuProductService } from './menu_product.service';
 import { ConsumeMenuDto } from '../dto/consume-menu.dto';
+import { UpdateMenuDto } from '../dto/update-menu.dto';
 
 interface MenuProductInterface {
   menuId: number;
@@ -155,29 +156,13 @@ export class MenuService {
    * @param updateMenuDto - DTO con los datos a actualizar (parcial)
    * @returns Promise<Menu> - El menú actualizado
    */
-  async update(
-    id: number,
-    updateMenuDto: Partial<CreateMenuDto>,
-  ): Promise<Menu> {
-    try {
-      const menu = await this.findOne(id);
-      if (!menu) {
-        throw new Error('Menu does not exist');
-      }
 
-      // Actualizar el menú
-      await this.menuRepository.update(id, updateMenuDto);
+  async updateMenuBasicInfo(id: number, dto: UpdateMenuDto): Promise<Menu> {
+    const menu = await this.menuRepository.findOne({ where: { id } });
+    if (!menu) throw new NotFoundException('Menu not found');
 
-      const updatedMenu = await this.findOne(id);
-      if (!updatedMenu) {
-        throw new Error('Failed to retrieve updated menu');
-      }
-
-      return updatedMenu;
-    } catch (error) {
-      this.logger.error(`Error updating menu: ${error.message}`);
-      throw new Error(`Failed to update menu: ${error.message}`);
-    }
+    Object.assign(menu, dto);
+    return this.menuRepository.save(menu);
   }
 
   /**
@@ -254,12 +239,8 @@ export class MenuService {
         relations: ['menuProducts', 'menuProducts.product', 'menuType'],
       });
     } catch (error) {
-      this.logger.error(
-        `Error finding all menus with products: ${error.message}`,
-      );
-      throw new Error(
-        `Failed to find all menus with products: ${error.message}`,
-      );
+      this.logger.error(`Error finding all menus with products: ${error}`);
+      throw new Error(`Failed to find all menus with products: ${error}`);
     }
   }
 
