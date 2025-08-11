@@ -1,4 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan } from 'typeorm';
 import { Menu } from '../entities/menu.entity';
@@ -6,12 +11,10 @@ import { CreateMenuDto } from '../dto/create-menu.dto';
 import { MenuProductService } from './menu_product.service';
 import { ConsumeMenuDto } from '../dto/consume-menu.dto';
 
-
 interface MenuProductInterface {
-  menuId: number,
-  productId: number
+  menuId: number;
+  productId: number;
 }
-
 
 /**
  * Servicio para gestionar los menús del sistema de inventario
@@ -24,8 +27,8 @@ export class MenuService {
   constructor(
     @InjectRepository(Menu)
     private readonly menuRepository: Repository<Menu>,
-    private readonly menuProductService: MenuProductService
-  ) { }
+    private readonly menuProductService: MenuProductService,
+  ) {}
 
   /**
    * Crea un nuevo menú con sus productos asociados
@@ -45,7 +48,7 @@ export class MenuService {
     // 3. Crear los MenuProducts relacionados
     if (menuProducts && menuProducts.length > 0) {
       // Mapear para crear promesas de creación
-      const createMenuProductsPromises = menuProducts.map(mp => {
+      const createMenuProductsPromises = menuProducts.map((mp) => {
         return this.menuProductService.create({
           menuId: savedMenu.id,
           productId: mp.productId,
@@ -78,9 +81,9 @@ export class MenuService {
   async findOne(id: number) {
     try {
       const menu = await this.menuRepository.findOne({ where: { id } });
-      return menu
+      return menu;
     } catch (error) {
-      throw new Error(`Error finding menu ${error.message}`)
+      throw new Error(`Error finding menu ${error.message}`);
     }
   }
 
@@ -92,21 +95,21 @@ export class MenuService {
    */
   async addQuantityMenu(quantity: number, menuId: number) {
     try {
-      const menu = await this.findOne(menuId)
+      const menu = await this.findOne(menuId);
       if (!menu) {
-        throw new Error('Menu does not exist')
+        throw new Error('Menu does not exist');
       }
 
       // Actualizar la cantidad del menú
       const updatedMenu = await this.menuRepository.update(
         { id: menuId },
-        { quantity: menu.quantity + quantity }
-      )
+        { quantity: menu.quantity + quantity },
+      );
 
-      return await this.findOne(menuId)
+      return await this.findOne(menuId);
     } catch (error) {
-      this.logger.error(`Error adding quantity to menu: ${error.message}`)
-      throw new Error(`Failed to add quantity to menu: ${error.message}`)
+      this.logger.error(`Error adding quantity to menu: ${error.message}`);
+      throw new Error(`Failed to add quantity to menu: ${error.message}`);
     }
   }
 
@@ -116,31 +119,33 @@ export class MenuService {
    * @returns Promise<Menu> - El menú actualizado después del consumo
    */
   async consumeMenu(consumeMenuDto: ConsumeMenuDto) {
-    const { menuId, quantity } = consumeMenuDto
+    const { menuId, quantity } = consumeMenuDto;
 
     try {
       // Verificar que el menú existe
-      const menu = await this.findOne(menuId)
+      const menu = await this.findOne(menuId);
       if (!menu) {
-        throw new Error('Menu does not exist')
+        throw new Error('Menu does not exist');
       }
 
       // Verificar que hay suficiente cantidad disponible
       if (menu.quantity < quantity) {
-        throw new Error(`Insufficient quantity. Available: ${menu.quantity}, Requested: ${quantity}`)
+        throw new Error(
+          `Insufficient quantity. Available: ${menu.quantity}, Requested: ${quantity}`,
+        );
       }
 
       // Actualizar la cantidad del menú (restar la cantidad consumida)
       await this.menuRepository.update(
         { id: menuId },
-        { quantity: menu.quantity - quantity }
-      )
+        { quantity: menu.quantity - quantity },
+      );
 
       // Retornar el menú actualizado
-      return await this.findOne(menuId)
+      return await this.findOne(menuId);
     } catch (error) {
-      this.logger.error(`Error consuming menu: ${error.message}`)
-      throw new Error(`Failed to consume menu: ${error.message}`)
+      this.logger.error(`Error consuming menu: ${error.message}`);
+      throw new Error(`Failed to consume menu: ${error.message}`);
     }
   }
 
@@ -150,25 +155,28 @@ export class MenuService {
    * @param updateMenuDto - DTO con los datos a actualizar (parcial)
    * @returns Promise<Menu> - El menú actualizado
    */
-  async update(id: number, updateMenuDto: Partial<CreateMenuDto>): Promise<Menu> {
+  async update(
+    id: number,
+    updateMenuDto: Partial<CreateMenuDto>,
+  ): Promise<Menu> {
     try {
-      const menu = await this.findOne(id)
+      const menu = await this.findOne(id);
       if (!menu) {
-        throw new Error('Menu does not exist')
+        throw new Error('Menu does not exist');
       }
 
       // Actualizar el menú
-      await this.menuRepository.update(id, updateMenuDto)
+      await this.menuRepository.update(id, updateMenuDto);
 
-      const updatedMenu = await this.findOne(id)
+      const updatedMenu = await this.findOne(id);
       if (!updatedMenu) {
-        throw new Error('Failed to retrieve updated menu')
+        throw new Error('Failed to retrieve updated menu');
       }
 
-      return updatedMenu
+      return updatedMenu;
     } catch (error) {
-      this.logger.error(`Error updating menu: ${error.message}`)
-      throw new Error(`Failed to update menu: ${error.message}`)
+      this.logger.error(`Error updating menu: ${error.message}`);
+      throw new Error(`Failed to update menu: ${error.message}`);
     }
   }
 
@@ -179,17 +187,17 @@ export class MenuService {
    */
   async remove(id: number): Promise<void> {
     try {
-      const menu = await this.findOne(id)
+      const menu = await this.findOne(id);
       if (!menu) {
-        throw new Error('Menu does not exist')
+        throw new Error('Menu does not exist');
       }
 
       // Eliminar el menú
-      await this.menuRepository.delete(id)
-      this.logger.log(`Menu with id ${id} has been deleted`)
+      await this.menuRepository.delete(id);
+      this.logger.log(`Menu with id ${id} has been deleted`);
     } catch (error) {
-      this.logger.error(`Error deleting menu: ${error.message}`)
-      throw new Error(`Failed to delete menu: ${error.message}`)
+      this.logger.error(`Error deleting menu: ${error.message}`);
+      throw new Error(`Failed to delete menu: ${error.message}`);
     }
   }
 
@@ -200,14 +208,14 @@ export class MenuService {
    */
   async findByMenuType(menuTypeId: number): Promise<Menu[]> {
     try {
-      this.logger.log(`Fetching menus by menuTypeId: ${menuTypeId}`)
+      this.logger.log(`Fetching menus by menuTypeId: ${menuTypeId}`);
       return await this.menuRepository.find({
         where: { menuTypeId },
-        relations: ['menuType']
-      })
+        relations: ['menuType'],
+      });
     } catch (error) {
-      this.logger.error(`Error finding menus by menuType: ${error.message}`)
-      throw new Error(`Failed to find menus by menuType: ${error.message}`)
+      this.logger.error(`Error finding menus by menuType: ${error.message}`);
+      throw new Error(`Failed to find menus by menuType: ${error.message}`);
     }
   }
 
@@ -216,21 +224,22 @@ export class MenuService {
    * @param id - ID del menú a buscar
    * @returns Promise<Menu> - El menú con sus productos relacionados
    */
-  async findWithProducts(id: number): Promise<Menu> {
+  async findWithProducts(): Promise<Menu[]> {
     try {
-      const menu = await this.menuRepository.findOne({
-        where: { id },
-        relations: ['menuProducts', 'menuProducts.product', 'menuType']
-      })
+      const menus = await this.menuRepository.find({
+        relations: ['menuProducts', 'menuProducts.product', 'menuType'],
+      });
 
-      if (!menu) {
-        throw new Error('Menu does not exist')
+      if (!menus.length) {
+        throw new NotFoundException('No menus found');
       }
 
-      return menu
+      return menus;
     } catch (error) {
-      this.logger.error(`Error finding menu with products: ${error.message}`)
-      throw new Error(`Failed to find menu with products: ${error.message}`)
+      this.logger.error(`Error finding menus with products: ${error}`);
+      throw new InternalServerErrorException(
+        `Failed to find menus with products`,
+      );
     }
   }
 
@@ -240,13 +249,17 @@ export class MenuService {
    */
   async findAllWithProducts(): Promise<Menu[]> {
     try {
-      this.logger.log('Fetching all menus with products')
+      this.logger.log('Fetching all menus with products');
       return await this.menuRepository.find({
-        relations: ['menuProducts', 'menuProducts.product', 'menuType']
-      })
+        relations: ['menuProducts', 'menuProducts.product', 'menuType'],
+      });
     } catch (error) {
-      this.logger.error(`Error finding all menus with products: ${error.message}`)
-      throw new Error(`Failed to find all menus with products: ${error.message}`)
+      this.logger.error(
+        `Error finding all menus with products: ${error.message}`,
+      );
+      throw new Error(
+        `Failed to find all menus with products: ${error.message}`,
+      );
     }
   }
 
@@ -256,14 +269,14 @@ export class MenuService {
    */
   async findAvailableMenus(): Promise<Menu[]> {
     try {
-      this.logger.log('Fetching available menus (quantity > 0)')
+      this.logger.log('Fetching available menus (quantity > 0)');
       return await this.menuRepository.find({
         where: { quantity: MoreThan(0) },
-        relations: ['menuType']
-      })
+        relations: ['menuType'],
+      });
     } catch (error) {
-      this.logger.error(`Error finding available menus: ${error.message}`)
-      throw new Error(`Failed to find available menus: ${error.message}`)
+      this.logger.error(`Error finding available menus: ${error.message}`);
+      throw new Error(`Failed to find available menus: ${error.message}`);
     }
   }
 }
