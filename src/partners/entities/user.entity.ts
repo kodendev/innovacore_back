@@ -1,34 +1,46 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { UserType } from "./userType.entity";
-import { Partner } from "./partner.entity";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { UserType } from './userType.entity';
+import { Partner } from './partner.entity';
 @Entity()
 export class User {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    username: string;
+  @Column({ unique: true })
+  username: string;
 
-    @Column()
-    password_hash: string;
+  @Column()
+  password_hash: string;
 
-    @OneToOne(() => Partner)
-    @JoinColumn({ name: 'partnerId' })
-    partner: Partner;
+  @OneToOne(() => Partner, { nullable: true })
+  @JoinColumn({ name: 'partnerId' })
+  partner: Partner;
 
-    @Column()
-    userTypeId: number;
+  @Column({ nullable: false })
+  userTypeId: number;
 
-    @ManyToOne(() => UserType, (userType) => userType.users)
-    @JoinColumn({ name: 'userTypeId' })
-    userType: UserType;
+  @ManyToOne(() => UserType, (userType) => userType.users)
+  @JoinColumn({ name: 'userTypeId' })
+  userType: UserType;
 
-    @Column()
-    active: boolean
+  @Column({ nullable: false })
+  active: boolean;
 
-    @CreateDateColumn()
-    createdAt: Date;
+  @Column({ nullable: false, unique: true })
+  email: string;
 
-    @UpdateDateColumn()
-    updatedAt: Date;
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

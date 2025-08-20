@@ -1,26 +1,38 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { Product } from "./products.entity";
-import { MovementType } from "./movementType.entity";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { Product } from './products.entity';
+import { MovementType } from './movementType.entity';
+import { User } from 'src/partners/entities/user.entity';
 @Entity()
 export class Inventory {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @ManyToOne(() => Product, (product) => product.inventories)
-    @JoinColumn({ name: 'product_id' })
-    product: Product;
+  @ManyToOne(() => Product, (product) => product.inventories)
+  @JoinColumn({ name: 'product_id' })
+  product: Product;
 
-    @Column()
-    quantity: number;
+  @Column()
+  quantity: number;
 
-    @ManyToOne(() => MovementType)
-    @JoinColumn({ name: 'movementTypeId' })
-    movementType: MovementType;
+  @ManyToOne(() => MovementType)
+  @JoinColumn({ name: 'movementTypeId' })
+  movementType: MovementType;
 
-    @CreateDateColumn()
-    createdAt: Date;
+  @ManyToOne(() => User, { nullable: false })
+  @JoinColumn({ name: 'userId' })
+  user: User;
 
-    @UpdateDateColumn()
-    updatedAt: Date;
+  @CreateDateColumn()
+  createdAt: Date;
 
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

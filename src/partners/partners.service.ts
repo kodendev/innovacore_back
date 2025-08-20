@@ -4,7 +4,7 @@ import { UpdatePartnerDto } from './dto/update-partner.dto';
 
 @Injectable()
 export class PartnersService {
-  create(createPartnerDto: CreatePartnerDto) {
+  create(CreatePartnerDto: CreatePartnerDto) {
     return 'This action adds a new partner';
   }
 

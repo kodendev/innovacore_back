@@ -9,7 +9,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 
 @Module({
-  imports: [InventoryModule, PosModule, HospitalBedsModule, PartnersModule,
+  imports: [
+    InventoryModule,
+    PosModule,
+    HospitalBedsModule,
+    PartnersModule,
     TypeOrmModule.forRoot({
       type: 'postgres', // o 'mysql', 'sqlite', etc.
       host: '172.28.226.196',
@@ -26,8 +30,6 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(LoggerMiddleware)
-      .forRoutes('*');  // Aplica a todas las rutas
+    consumer.apply(LoggerMiddleware).forRoutes('*'); // Aplica a todas las rutas
   }
 }
