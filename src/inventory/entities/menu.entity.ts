@@ -1,7 +1,15 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany, JoinColumn, ManyToOne, JoinTable, UpdateDateColumn, CreateDateColumn } from "typeorm";
-import { MenuProduct } from "./menu_product.entity";
-import { MenuType } from "./menu_types.entity";
-
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  JoinColumn,
+  ManyToOne,
+  UpdateDateColumn,
+  CreateDateColumn,
+} from 'typeorm';
+import { MenuProduct } from './menu_product.entity';
+import { MenuType } from './menu_types.entity';
 
 // Menu               Product
 //  └── quantity 🟩       └── nombre, etc.
@@ -13,32 +21,34 @@ import { MenuType } from "./menu_types.entity";
 
 @Entity()
 export class Menu {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    quantity: number;
+  @Column()
+  quantity: number;
 
-    @Column()
-    name: string;
+  @Column()
+  name: string;
 
-    @Column()
-    description: string
+  @Column()
+  description: string;
 
-    @OneToMany(() => MenuProduct, (mp) => mp.menu)
-    menuProducts: MenuProduct[];
+  @OneToMany(() => MenuProduct, (mp) => mp.menu)
+  menuProducts: MenuProduct[];
 
-    @ManyToOne(() => MenuType, (menuType) => menuType.menus)
-    @JoinColumn({ name: 'menuTypeId' })
-    menuType: MenuType;
+  @ManyToOne(() => MenuType, (menuType) => menuType.menus)
+  @JoinColumn({ name: 'menuTypeId' })
+  menuType: MenuType;
 
-    @Column()
-    menuTypeId: number
+  @Column()
+  menuTypeId: number;
 
-    @CreateDateColumn()
-    createdAt: Date;
+  @Column({ default: true }) // 👈 nuevo campo booleano
+  active: boolean;
 
-    @UpdateDateColumn()
-    updatedAt: Date;
+  @CreateDateColumn()
+  createdAt: Date;
 
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
