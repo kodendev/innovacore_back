@@ -13,6 +13,7 @@ import { MenuProductService } from './menu_product.service';
 import { ConsumeMenuDto } from '../dto/consume-menu.dto';
 import { UpdateMenuDto } from '../dto/update-menu.dto';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface MenuProductInterface {
   menuId: number;
   productId: number;
@@ -267,6 +268,21 @@ export class MenuService {
     } catch (error) {
       this.logger.error(`Error finding available menus: ${error.message}`);
       throw new Error(`Failed to find available menus: ${error.message}`);
+    }
+  }
+
+  async changeMenuStatus(menuId: number): Promise<Menu> {
+    try {
+      const menu = await this.menuRepository.findOne({ where: { id: menuId } });
+      if (!menu) throw new NotFoundException('Menu not found');
+
+      menu.active = !menu.active;
+      return this.menuRepository.save(menu);
+    } catch (error) {
+      this.logger.error(`Error changing menu status: ${error.message}`);
+      throw new ConflictException(
+        `Failed to change menu status: ${error.message}`,
+      );
     }
   }
 }
