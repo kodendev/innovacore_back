@@ -31,7 +31,7 @@ export class Product {
   @Column()
   active: boolean;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'date', nullable: true })
   expirationDate: Date;
 
   @OneToMany(() => Inventory, (inventory) => inventory.product)
@@ -40,7 +40,7 @@ export class Product {
   @OneToMany(() => MenuProduct, (mp) => mp.product)
   menuProducts: MenuProduct[];
 
-  @Column()
+  @Column({ type: 'int', default: 0 })
   stock: number; // Esto nos va a servir para ver el stock rapido , para auditarlo usaremos la tabla de
   // movimientos , dado que en el stock puede llegar a haber alguna inconsistencia (no deberia)
   @CreateDateColumn()

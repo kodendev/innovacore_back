@@ -3,6 +3,7 @@ import {
   Logger,
   NotFoundException,
   InternalServerErrorException,
+  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan } from 'typeorm';
@@ -38,6 +39,13 @@ export class MenuService {
    */
   async create(createMenuDto: CreateMenuDto): Promise<Menu> {
     this.logger.log(`Creating menu: ${JSON.stringify(createMenuDto)}`);
+
+    const menuNameExists = await this.menuRepository.findOne({
+      where: { name: createMenuDto.name },
+    });
+    if (menuNameExists) {
+      throw new ConflictException('Menu with this name already exists');
+    }
 
     // 1. Crear la entidad Menu sin los productos
     const { menuProducts, ...menuData } = createMenuDto;
@@ -102,6 +110,7 @@ export class MenuService {
       }
 
       // Actualizar la cantidad del menú
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const updatedMenu = await this.menuRepository.update(
         { id: menuId },
         { quantity: menu.quantity + quantity },
