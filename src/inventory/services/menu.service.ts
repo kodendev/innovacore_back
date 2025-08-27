@@ -3,6 +3,7 @@ import {
   Logger,
   NotFoundException,
   InternalServerErrorException,
+  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan } from 'typeorm';
@@ -12,6 +13,7 @@ import { MenuProductService } from './menu_product.service';
 import { ConsumeMenuDto } from '../dto/consume-menu.dto';
 import { UpdateMenuDto } from '../dto/update-menu.dto';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface MenuProductInterface {
   menuId: number;
   productId: number;
@@ -38,6 +40,13 @@ export class MenuService {
    */
   async create(createMenuDto: CreateMenuDto): Promise<Menu> {
     this.logger.log(`Creating menu: ${JSON.stringify(createMenuDto)}`);
+
+    const menuNameExists = await this.menuRepository.findOne({
+      where: { name: createMenuDto.name },
+    });
+    if (menuNameExists) {
+      throw new ConflictException('Menu with this name already exists');
+    }
 
     // 1. Crear la entidad Menu sin los productos
     const { menuProducts, ...menuData } = createMenuDto;
@@ -102,6 +111,7 @@ export class MenuService {
       }
 
       // Actualizar la cantidad del menú
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const updatedMenu = await this.menuRepository.update(
         { id: menuId },
         { quantity: menu.quantity + quantity },
@@ -258,6 +268,21 @@ export class MenuService {
     } catch (error) {
       this.logger.error(`Error finding available menus: ${error.message}`);
       throw new Error(`Failed to find available menus: ${error.message}`);
+    }
+  }
+
+  async changeMenuStatus(menuId: number): Promise<Menu> {
+    try {
+      const menu = await this.menuRepository.findOne({ where: { id: menuId } });
+      if (!menu) throw new NotFoundException('Menu not found');
+
+      menu.active = !menu.active;
+      return this.menuRepository.save(menu);
+    } catch (error) {
+      this.logger.error(`Error changing menu status: ${error.message}`);
+      throw new ConflictException(
+        `Failed to change menu status: ${error.message}`,
+      );
     }
   }
 }

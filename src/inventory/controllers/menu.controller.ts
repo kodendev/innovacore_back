@@ -181,6 +181,20 @@ export class MenuController {
   findAvailableMenus() {
     return this.menuService.findAvailableMenus();
   }
+
+  @Patch(':id/changeStatus') //usamos patch por que cambiaremos parcialmente el recurso
+  @ApiOperation({ summary: 'Cambiar el estado activo/inactivo de un menú' })
+  @ApiResponse({
+    status: 200,
+    description: 'Estado del menú cambiado correctamente',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Menú no encontrado',
+  })
+  changeMenuStatus(@Param('id', ParseIntPipe) id: number) {
+    return this.menuService.changeMenuStatus(id);
+  }
 }
 
 @ApiTags('Menu Types')
