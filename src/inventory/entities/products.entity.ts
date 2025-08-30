@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Inventory } from './inventory.entity';
 import { MenuProduct } from './menu_product.entity';
+import { Expose } from 'class-transformer';
 @Entity()
 export class Product {
   @PrimaryGeneratedColumn()
@@ -43,6 +44,15 @@ export class Product {
   @Column({ type: 'int', default: 0 })
   stock: number; // Esto nos va a servir para ver el stock rapido , para auditarlo usaremos la tabla de
   // movimientos , dado que en el stock puede llegar a haber alguna inconsistencia (no deberia)
+
+  @Column({ type: 'int', default: 0 })
+  minStock: number;
+
+  @Expose()
+  get isStockMin(): boolean {
+    return this.stock <= this.minStock;
+  }
+
   @CreateDateColumn()
   createdAt: Date;
 
