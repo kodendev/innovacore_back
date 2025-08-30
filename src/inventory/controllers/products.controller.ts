@@ -16,7 +16,7 @@ import { UpdateProductDto } from '../dto/update-product.dto';
 @ApiTags('Products')
 @Controller('products')
 export class ProductController {
-  constructor(private readonly productService: ProductService) { }
+  constructor(private readonly productService: ProductService) {}
 
   @Post()
   @ApiOperation({ summary: 'Crear un nuevo producto' })
@@ -107,5 +107,10 @@ export class ProductController {
   })
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.productService.remove(id);
+  }
+  @Get('stock/min')
+  @ApiOperation({ summary: 'Obtener productos con stock mínimo' })
+  getProductsWithMinStock() {
+    return this.productService.getProductsWithMinStock();
   }
 }
