@@ -14,7 +14,7 @@ export class PurchaseProductDto {
   quantity: number;
 }
 
-export class CreatePurchaseDto {
+export class MovementDto {
   @ApiProperty({
     description: 'ID del usuario que realiza la compra',
     example: 5,
@@ -23,6 +23,20 @@ export class CreatePurchaseDto {
 
   @ApiProperty({
     description: 'Lista de productos a comprar',
+    type: [PurchaseProductDto],
+  })
+  products: PurchaseProductDto[];
+}
+
+export class AddSaleDto {
+  @ApiProperty({
+    description: 'ID del usuario que realiza la venta',
+    example: 5,
+  })
+  userId: number;
+
+  @ApiProperty({
+    description: 'Lista de productos a vender',
     type: [PurchaseProductDto],
   })
   products: PurchaseProductDto[];

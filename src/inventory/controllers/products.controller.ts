@@ -12,7 +12,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { ProductService } from '../services/products.service';
 import { CreateProductDto } from '../dto/create-product.dto';
 import { UpdateProductDto } from '../dto/update-product.dto';
-import { CreatePurchaseDto } from '../dto/purchase.dto';
+import { MovementDto } from '../dto/purchase.dto';
 
 @ApiTags('Products')
 @Controller('products')
@@ -116,7 +116,27 @@ export class ProductController {
   }
 
   @Post('addPurchase') // controlador para agregar una compra
-  addPurchase(@Body() createPurchaseDto: CreatePurchaseDto) {
-    return this.productService.addPurchase(createPurchaseDto);
+  async addPurchase(@Body() movementDto: MovementDto) {
+    try {
+      return await this.productService.addPurchase(movementDto);
+    } catch (error) {
+      return { error: error.message };
+    }
+  }
+  @Post('addSaleMovement') // controlador para un movimiento de venta
+  async addSale(@Body() movementDto: MovementDto) {
+    try {
+      return await this.productService.addSaleMovement(movementDto);
+    } catch (error) {
+      return { error: error.message };
+    }
+  }
+  @Post('addBedConsumptionMovement') // controlador para un movimiento de consumo de cama
+  async addBedConsumption(@Body() movementDto: MovementDto) {
+    try {
+      return await this.productService.addBedConsumptionMovement(movementDto);
+    } catch (error) {
+      return { error: error.message };
+    }
   }
 }
