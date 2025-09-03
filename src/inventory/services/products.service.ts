@@ -1,10 +1,19 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from '../entities/products.entity';
 import { CreateProductDto } from 'src/inventory/dto/create-product.dto';
 import { UpdateProductDto } from '../dto/update-product.dto';
-
+import { CreatePurchaseDto, PurchaseProductDto } from '../dto/purchase.dto';
+import { InventoryReasons } from 'src/types/movementReason.enum';
+import { InventoryService } from '../inventory.service';
+import { CreateInventoryMovementDto } from '../dto/create-inventory.dto';
 @Injectable()
 export class ProductService {
   private readonly logger = new Logger(ProductService.name);
@@ -12,6 +21,9 @@ export class ProductService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+
+    @Inject(forwardRef(() => InventoryService))
+    private readonly inventoryService: InventoryService,
   ) {}
 
   async create(createProductDto: CreateProductDto) {
@@ -75,6 +87,45 @@ export class ProductService {
       throw new Error(
         `Failed to fetch products with min stock: ${error.message}`,
       );
+    }
+  }
+
+  async addStockProduct(purchaseProductDto: PurchaseProductDto) {
+    const { productId, quantity } = purchaseProductDto;
+    const product = await this.findOne(productId);
+    if (!product) {
+      throw new NotFoundException(`Product with id ${productId} not found`);
+    }
+    product.stock += quantity;
+    await this.productRepository.save(product);
+  }
+
+  async discountStockProduct(purchaseProductDto: PurchaseProductDto) {
+    const { productId, quantity } = purchaseProductDto;
+    const product = await this.findOne(productId);
+    if (!product) {
+      throw new NotFoundException(`Product with id ${productId} not found`);
+    }
+    product.stock -= quantity;
+    await this.productRepository.save(product);
+  }
+
+  async addPurchase(createPurchaseDto: CreatePurchaseDto) {
+    // Validate and process the purchase DTO
+    for (const product of createPurchaseDto.products) {
+      const { productId, quantity } = product;
+      await this.addStockProduct({ productId, quantity });
+      const movementDto: CreateInventoryMovementDto = {
+        productId,
+        quantity,
+        reason: InventoryReasons.PURCHASE,
+        userId: createPurchaseDto.userId,
+      };
+      const movement =
+        await this.inventoryService.registerMovement(movementDto);
+      if (!movement) {
+        throw new Error('Failed to register inventory movement');
+      }
     }
   }
 }

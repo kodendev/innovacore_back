@@ -12,6 +12,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { ProductService } from '../services/products.service';
 import { CreateProductDto } from '../dto/create-product.dto';
 import { UpdateProductDto } from '../dto/update-product.dto';
+import { CreatePurchaseDto } from '../dto/purchase.dto';
 
 @ApiTags('Products')
 @Controller('products')
@@ -112,5 +113,10 @@ export class ProductController {
   @ApiOperation({ summary: 'Obtener productos con stock mínimo' })
   getProductsWithMinStock() {
     return this.productService.getProductsWithMinStock();
+  }
+
+  @Post('addPurchase') // controlador para agregar una compra
+  addPurchase(@Body() createPurchaseDto: CreatePurchaseDto) {
+    return this.productService.addPurchase(createPurchaseDto);
   }
 }
