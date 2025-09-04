@@ -34,6 +34,20 @@ export class ProductService {
     return product;
   }
 
+  async searchByName(name: string) {
+    this.logger.log(`Searching products by name: ${name}`);
+    const products = await this.productRepository
+      .createQueryBuilder('product')
+      .where('LOWER(product.name) LIKE LOWER(:name)', { name: `%${name}%` })
+      .getMany();
+
+    if (!products || products.length === 0) {
+      throw new NotFoundException(`No se encontraron productos con ese nombre`);
+    }
+
+    return products;
+  }
+
   async update(id: number, updateProductDto: UpdateProductDto) {
     this.logger.log(
       `Updating product id ${id}: ${JSON.stringify(updateProductDto)}`,

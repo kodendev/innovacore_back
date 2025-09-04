@@ -7,8 +7,16 @@ import {
   Patch,
   Delete,
   ParseIntPipe,
+  Query,
+  BadRequestException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { ProductService } from '../services/products.service';
 import { CreateProductDto } from '../dto/create-product.dto';
 import { UpdateProductDto } from '../dto/update-product.dto';
@@ -40,6 +48,25 @@ export class ProductController {
   })
   findAll() {
     return this.productService.findAll();
+  }
+
+  @Get('search')
+  @ApiOperation({ summary: 'Buscar productos por nombre' })
+  @ApiQuery({
+    name: 'name',
+    type: String,
+    description: 'Nombre (o parte del nombre) del producto',
+    example: 'shampoo',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de productos encontrados',
+  })
+  search(@Query('name') name: string) {
+    if (!name) {
+      throw new BadRequestException('El parámetro "name" es requerido');
+    }
+    return this.productService.searchByName(name);
   }
 
   @Get(':id')
