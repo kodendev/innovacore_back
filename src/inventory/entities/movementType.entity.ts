@@ -14,8 +14,8 @@ export class MovementType {
   @Column()
   name: string;
 
-  @Column({ nullable: true })
-  description: string;
+  @Column({ type: 'enum', enum: ['IN', 'OUT', 'TRANSFER'] })
+  direction: 'IN' | 'OUT' | 'TRANSFER'; // Entrada, salida, transferencia
 
   @CreateDateColumn()
   createdAt: Date;
