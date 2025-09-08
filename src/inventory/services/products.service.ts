@@ -78,7 +78,7 @@ export class ProductService {
   async update(id: number, updateProductDto: UpdateProductDto) {
     const product = await this.productRepository.findOne({
       where: { id },
-      relations: ['category'], // si querés traer la categoría
+      relations: ['category'],
     });
 
     if (!product) {
