@@ -18,6 +18,9 @@ import { MenuProduct } from './entities/menu_product.entity';
 import { Inventory } from './entities/inventory.entity';
 import { MovementType } from './entities/movementType.entity';
 import { User } from 'src/partners/entities/user.entity';
+import { Category } from './entities/product_category.entity';
+import { CategoriesController } from './controllers/categories.controller';
+import { CategoryService } from './services/category.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -28,6 +31,7 @@ import { User } from 'src/partners/entities/user.entity';
       Inventory,
       MovementType,
       User,
+      Category,
     ]),
   ],
   controllers: [
@@ -36,6 +40,7 @@ import { User } from 'src/partners/entities/user.entity';
     MenuController,
     MenuTypeController,
     InventoryController,
+    CategoriesController,
   ],
   providers: [
     InventoryService,
@@ -44,6 +49,7 @@ import { User } from 'src/partners/entities/user.entity';
     MenuTypeService,
     MenuProductService,
     InventoryService,
+    CategoryService,
   ],
 })
 export class InventoryModule {}
