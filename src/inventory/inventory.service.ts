@@ -72,6 +72,13 @@ export class InventoryService {
     }
   }
 
+  async findAll() {
+    return this.inventoryMovementRepository.find({
+      relations: ['product', 'user'], // opcional, si querés traer datos completos
+      order: { createdAt: 'DESC' }, // para ver el historial más reciente primero
+    });
+  }
+
   // addSale(createInventoryMovementDto: CreateInventoryMovementDto) {
   //   const product = createInventoryMovementDto.product;
   //   const quantity = createInventoryMovementDto.quantity;
@@ -83,10 +90,6 @@ export class InventoryService {
   // ) {}
 
   // addAdjustment(createInventoryMovementDto: CreateInventoryMovementDto) {}
-
-  // findAll() {
-  //   return `This action returns all inventory movements`;
-  // }
 
   // findOne(id: number) {
   //   return `This action returns a #${id} inventory`;
