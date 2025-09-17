@@ -5,10 +5,12 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
 } from 'typeorm';
 import { Inventory } from './inventory.entity';
 import { MenuProduct } from './menu_product.entity';
 import { Expose } from 'class-transformer';
+import { Category } from './product_category.entity';
 @Entity()
 export class Product {
   @PrimaryGeneratedColumn()
@@ -58,4 +60,7 @@ export class Product {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ManyToOne(() => Category, (category) => category.products, { eager: true })
+  category: Category;
 }

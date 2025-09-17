@@ -18,6 +18,7 @@ import {
 import { InventoryReasons } from 'src/types/movementReason.enum';
 import { InventoryService } from '../inventory.service';
 import { CreateInventoryMovementDto } from '../dto/create-inventory.dto';
+import { Category } from '../entities/product_category.entity';
 @Injectable()
 export class ProductService {
   private readonly logger = new Logger(ProductService.name);
@@ -26,19 +27,43 @@ export class ProductService {
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
 
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
+
     @Inject(forwardRef(() => InventoryService))
     private readonly inventoryService: InventoryService,
   ) {}
 
+  // async create(createProductDto: CreateProductDto) {
+  //   this.logger.log(`Creating product: ${JSON.stringify(createProductDto)}`);
+  //   const product = this.productRepository.create(createProductDto);
+  //   return await this.productRepository.save(product);
+  // }
+
   async create(createProductDto: CreateProductDto) {
     this.logger.log(`Creating product: ${JSON.stringify(createProductDto)}`);
-    const product = this.productRepository.create(createProductDto);
+
+    const product = this.productRepository.create({
+      ...createProductDto,
+      category: { id: createProductDto.categoryId }, // 👈 con esto basta
+    });
+
     return await this.productRepository.save(product);
   }
 
-  async findAll() {
-    this.logger.log('Fetching all products');
-    return await this.productRepository.find();
+  async findAll(categoryId?: number) {
+    this.logger.log(
+      categoryId
+        ? `Fetching products filtered by categoryId=${categoryId}`
+        : 'Fetching all products',
+    );
+
+    const where = categoryId ? { category: { id: categoryId } } : {};
+
+    return await this.productRepository.find({
+      where,
+      relations: ['category'],
+    });
   }
 
   async findOne(id: number) {
@@ -51,16 +76,31 @@ export class ProductService {
   }
 
   async update(id: number, updateProductDto: UpdateProductDto) {
-    this.logger.log(
-      `Updating product id ${id}: ${JSON.stringify(updateProductDto)}`,
-    );
-    const product = await this.productRepository.preload({
-      id,
-      ...updateProductDto,
+    const product = await this.productRepository.findOne({
+      where: { id },
+      relations: ['category'],
     });
+
     if (!product) {
-      throw new NotFoundException(`Product with id ${id} not found`);
+      throw new NotFoundException(`Product with ID ${id} not found`);
     }
+
+    // Si viene categoryId en el DTO, actualizamos la categoría
+    if (updateProductDto.categoryId) {
+      const category = await this.categoryRepository.findOneBy({
+        id: updateProductDto.categoryId,
+      });
+      if (!category) {
+        throw new NotFoundException(
+          `Category with ID ${updateProductDto.categoryId} not found`,
+        );
+      }
+      product.category = category;
+    }
+
+    // Asignamos los demás campos
+    Object.assign(product, updateProductDto);
+
     return await this.productRepository.save(product);
   }
 
