@@ -3,7 +3,6 @@ import { MenuType } from '../entities/menu_types.entity';
 import { Repository } from 'typeorm';
 import { CreateMenuTypesDto } from '../dto/create-menu-types.dto';
 import { Logger } from '@nestjs/common';
-
 export class MenuTypeService {
   private readonly logger = new Logger(MenuTypeService.name);
   constructor(
