@@ -17,11 +17,23 @@ export class CreateProductDto {
   name: string;
 
   @ApiProperty({
+    example: '2023-12-31',
+    description: 'Fecha de caducidad del producto',
+  })
+  @ApiProperty({
     example: 'Bebida gaseosa sabor cola',
     description: 'Descripción breve del producto',
   })
   @IsString()
   description: string;
+
+  @ApiProperty({
+    example: 1,
+    description: 'ID de la categoría del producto',
+  })
+  @IsNumber()
+  @IsPositive()
+  categoryId: number;
 
   @ApiProperty({
     example: 250,

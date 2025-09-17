@@ -20,6 +20,7 @@ import {
 import { ProductService } from '../services/products.service';
 import { CreateProductDto } from '../dto/create-product.dto';
 import { UpdateProductDto } from '../dto/update-product.dto';
+import { MovementDto } from '../dto/purchase.dto';
 
 @ApiTags('Products')
 @Controller('products')
@@ -41,13 +42,23 @@ export class ProductController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Listar todos los productos' })
+  @ApiOperation({
+    summary: 'Listar productos (con filtro opcional por categoría)',
+  })
   @ApiResponse({
     status: 200,
     description: 'Lista de productos',
   })
-  findAll() {
-    return this.productService.findAll();
+  @ApiQuery({
+    name: 'categoryId',
+    required: false,
+    type: Number,
+    description: 'ID de la categoría para filtrar los productos',
+  })
+  findAll(@Query('categoryId') categoryId?: string) {
+    return this.productService.findAll(
+      categoryId ? Number(categoryId) : undefined,
+    );
   }
 
   @Get('search')
@@ -139,5 +150,30 @@ export class ProductController {
   @ApiOperation({ summary: 'Obtener productos con stock mínimo' })
   getProductsWithMinStock() {
     return this.productService.getProductsWithMinStock();
+  }
+
+  @Post('addPurchase') // controlador para agregar una compra
+  async addPurchase(@Body() movementDto: MovementDto) {
+    try {
+      return await this.productService.addPurchase(movementDto);
+    } catch (error) {
+      return { error: error.message };
+    }
+  }
+  @Post('addSaleMovement') // controlador para un movimiento de venta
+  async addSale(@Body() movementDto: MovementDto) {
+    try {
+      return await this.productService.addSaleMovement(movementDto);
+    } catch (error) {
+      return { error: error.message };
+    }
+  }
+  @Post('addBedConsumptionMovement') // controlador para un movimiento de consumo de cama
+  async addBedConsumption(@Body() movementDto: MovementDto) {
+    try {
+      return await this.productService.addBedConsumptionMovement(movementDto);
+    } catch (error) {
+      return { error: error.message };
+    }
   }
 }
