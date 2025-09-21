@@ -8,6 +8,7 @@ import {
   Delete,
   ParseIntPipe,
   Query,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -58,6 +59,25 @@ export class ProductController {
     return this.productService.findAll(
       categoryId ? Number(categoryId) : undefined,
     );
+  }
+
+  @Get('search')
+  @ApiOperation({ summary: 'Buscar productos por nombre' })
+  @ApiQuery({
+    name: 'name',
+    type: String,
+    description: 'Nombre (o parte del nombre) del producto',
+    example: 'shampoo',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de productos encontrados',
+  })
+  search(@Query('name') name: string) {
+    if (!name) {
+      throw new BadRequestException('El parámetro "name" es requerido');
+    }
+    return this.productService.searchByName(name);
   }
 
   @Get(':id')
