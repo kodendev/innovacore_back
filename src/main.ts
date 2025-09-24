@@ -7,9 +7,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: true,
+    origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
+    allowedHeaders: 'Content-Type, Accept',
   });
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector))); // Agregar interceptor global , nos permite transformar las respuestas
 
