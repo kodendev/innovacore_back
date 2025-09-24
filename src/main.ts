@@ -8,8 +8,8 @@ async function bootstrap() {
 
   app.enableCors({
     origin: '*',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type, Accept',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type, Accept, Authorization, X-Requested-With',
   });
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector))); // Agregar interceptor global , nos permite transformar las respuestas
 
@@ -28,6 +28,8 @@ async function bootstrap() {
   const port = process.env.PORT ?? 3001;
   await app.listen(port, '0.0.0.0');
   console.log(`🚀 Application is running on: http://0.0.0.0:${port}`);
-  console.log(`📚 Swagger documentation available at: http://localhost:${port}/api`);
+  console.log(
+    `📚 Swagger documentation available at: http://localhost:${port}/api`,
+  );
 }
 bootstrap();
