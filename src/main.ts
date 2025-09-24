@@ -9,7 +9,7 @@ async function bootstrap() {
   app.enableCors({
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type, Accept, Authorization, X-Requested-With',
+    allowedHeaders: '*',
   });
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector))); // Agregar interceptor global , nos permite transformar las respuestas
 
