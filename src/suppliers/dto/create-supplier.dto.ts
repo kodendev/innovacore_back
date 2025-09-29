@@ -1,11 +1,25 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsEmail,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   Length,
+  ValidateNested,
 } from 'class-validator';
+
+class CreateSupplierProductInlineDto {
+  @ApiProperty()
+  @IsNumber()
+  productId: number;
+
+  @ApiProperty()
+  @IsNumber()
+  costPrice: number;
+}
 
 export class CreateSupplierDto {
   @ApiProperty({
@@ -45,4 +59,11 @@ export class CreateSupplierDto {
   @IsOptional()
   @Length(5, 200)
   address?: string;
+
+  @ApiProperty({ type: [CreateSupplierProductInlineDto], required: false })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateSupplierProductInlineDto)
+  products?: CreateSupplierProductInlineDto[];
 }
