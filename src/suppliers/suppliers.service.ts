@@ -60,6 +60,7 @@ export class SuppliersService {
 
   async findAll(): Promise<Supplier[]> {
     return this.supplierRepo.find({
+      where: { active: true },
       relations: ['supplierProducts', 'supplierProducts.product'],
     });
   }
