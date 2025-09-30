@@ -1,5 +1,5 @@
 // suppliers.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Put } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
@@ -7,6 +7,7 @@ import { UpdateSupplierDto } from './dto/update-supplier.dto';
 import { Supplier } from './entities/supplier.entity';
 import { SupplierProduct } from './entities/supplier-product.entity';
 import { Product } from 'src/inventory/entities/products.entity';
+import { ApiBody } from '@nestjs/swagger';
 
 @Injectable()
 export class SuppliersService {
@@ -68,7 +69,7 @@ export class SuppliersService {
   async findOne(id: number): Promise<Supplier> {
     const supplier = await this.supplierRepo.findOne({
       where: { id },
-      relations: ['supplierProducts', 'supplierProducts.product'], // 👈
+      relations: ['supplierProducts', 'supplierProducts.product'],
     });
     if (!supplier) {
       throw new NotFoundException(`Supplier #${id} not found`);
@@ -76,11 +77,14 @@ export class SuppliersService {
     return supplier;
   }
 
+  @Put(':id')
+  @ApiBody({ type: UpdateSupplierDto })
   async update(
     id: number,
     updateSupplierDto: UpdateSupplierDto,
   ): Promise<Supplier> {
-    await this.supplierRepo.update(id, updateSupplierDto);
+    const { name, email, phone, address } = updateSupplierDto;
+    await this.supplierRepo.update(id, { name, email, phone, address });
     return this.findOne(id);
   }
 
