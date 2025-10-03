@@ -5,6 +5,7 @@ import {
   IsPositive,
   Min,
   IsOptional,
+  IsDateString,
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -75,4 +76,21 @@ export class UpdateProductDto {
   @IsNumber()
   @Min(0)
   stock?: number;
+
+  @ApiPropertyOptional({
+    example: '2023-12-31',
+    description: 'Fecha de caducidad del producto',
+  })
+  @IsOptional()
+  @IsDateString()
+  expirationDate?: string;
+
+  @ApiPropertyOptional({
+    example: 0,
+    description: 'Stock mínimo del producto',
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  minStock?: number;
 }
