@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsString } from 'class-validator';
+import { IsInt, IsOptional, IsString, Min } from 'class-validator';
 
 export class InventoryMovementDto {
   @ApiProperty({ description: 'ID del movimiento de stock' })
@@ -43,6 +43,7 @@ export class CreateInventoryMovementDto {
     example: 5,
   })
   @IsInt()
+  @Min(1, { message: 'La cantidad debe ser mayor que 0' })
   quantity: number;
 
   // @ApiProperty({

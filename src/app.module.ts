@@ -9,6 +9,7 @@ import { HospitalBedsModule } from './hospital-beds/hospital-beds.module';
 import { PosModule } from './pos/pos.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { SuppliersModule } from './suppliers/suppliers.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ConfigModule } from '@nestjs/config';
     PartnersModule,
     HospitalBedsModule,
     PosModule,
+    SuppliersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

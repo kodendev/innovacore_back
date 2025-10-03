@@ -11,6 +11,7 @@ import { Inventory } from './inventory.entity';
 import { MenuProduct } from './menu_product.entity';
 import { Expose } from 'class-transformer';
 import { Category } from './product_category.entity';
+import { SupplierProduct } from 'src/suppliers/entities/supplier-product.entity';
 @Entity()
 export class Product {
   @PrimaryGeneratedColumn()
@@ -63,4 +64,7 @@ export class Product {
 
   @ManyToOne(() => Category, (category) => category.products, { eager: true })
   category: Category;
+
+  @OneToMany(() => SupplierProduct, (sp) => sp.supplier)
+  supplierProducts: SupplierProduct[];
 }

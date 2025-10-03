@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   forwardRef,
   Inject,
   Injectable,
@@ -10,11 +11,7 @@ import { Repository } from 'typeorm';
 import { Product } from '../entities/products.entity';
 import { CreateProductDto } from 'src/inventory/dto/create-product.dto';
 import { UpdateProductDto } from '../dto/update-product.dto';
-import {
-  AddSaleDto,
-  MovementDto,
-  PurchaseProductDto,
-} from '../dto/purchase.dto';
+import { MovementDto, PurchaseProductDto } from '../dto/purchase.dto';
 import { InventoryReasons } from 'src/types/movementReason.enum';
 import { InventoryService } from '../inventory.service';
 import { CreateInventoryMovementDto } from '../dto/create-inventory.dto';
@@ -171,6 +168,11 @@ export class ProductService {
     // Validate and process the purchase DTO
     for (const product of movementDto.products) {
       const { productId, quantity } = product;
+
+      if (!quantity || quantity <= 0) {
+        throw new BadRequestException('La cantidad debe ser mayor que 0');
+      }
+
       await this.addStockProduct({ productId, quantity });
       const buildMovementDto: CreateInventoryMovementDto = {
         productId,
