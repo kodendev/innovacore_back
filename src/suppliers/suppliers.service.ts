@@ -1,5 +1,10 @@
 // suppliers.service.ts
-import { Injectable, NotFoundException, Put } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  Put,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
@@ -24,6 +29,39 @@ export class SuppliersService {
 
   async create(createSupplierDto: CreateSupplierDto): Promise<Supplier> {
     const { products, ...supplierData } = createSupplierDto;
+
+    if (supplierData.name) {
+      const existingByName = await this.supplierRepo.findOne({
+        where: { name: supplierData.name },
+      });
+      if (existingByName) {
+        throw new BadRequestException(
+          `Ya existe un proveedor con el nombre: ${supplierData.name}`,
+        );
+      }
+    }
+
+    if (supplierData.email) {
+      const existingByEmail = await this.supplierRepo.findOne({
+        where: { email: supplierData.email },
+      });
+      if (existingByEmail) {
+        throw new BadRequestException(
+          `Ya existe un proveedor con el email: ${supplierData.email}`,
+        );
+      }
+    }
+
+    if (supplierData.phone) {
+      const existingByPhone = await this.supplierRepo.findOne({
+        where: { phone: supplierData.phone },
+      });
+      if (existingByPhone) {
+        throw new BadRequestException(
+          `Ya existe un proveedor con el teléfono: ${supplierData.phone}`,
+        );
+      }
+    }
 
     const supplier = this.supplierRepo.create(supplierData);
     const savedSupplier = await this.supplierRepo.save(supplier);
