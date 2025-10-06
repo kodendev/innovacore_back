@@ -6,7 +6,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
 import { Supplier } from './entities/supplier.entity';
@@ -113,6 +113,13 @@ export class SuppliersService {
       throw new NotFoundException(`Supplier #${id} not found`);
     }
     return supplier;
+  }
+
+  async findByName(name: string): Promise<Supplier[]> {
+    return await this.supplierRepo.find({
+      where: { name: ILike(`%${name}%`) }, // ILike permite búsquedas case-insensitive
+      relations: ['supplierProducts', 'supplierProducts.product'], // opcional si querés incluir productos
+    });
   }
 
   @Put(':id')

@@ -1,5 +1,6 @@
 // suppliers.controller.ts
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -7,11 +8,12 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { SuppliersService } from './suppliers.service';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
-import { ApiCreatedResponse } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiQuery } from '@nestjs/swagger';
 
 @Controller('suppliers')
 export class SuppliersController {
@@ -29,6 +31,19 @@ export class SuppliersController {
   @Get()
   findAll() {
     return this.suppliersService.findAll();
+  }
+
+  @Get('search')
+  @ApiQuery({
+    name: 'name',
+    required: true,
+    description: 'Nombre del proveedor a buscar',
+  })
+  findByName(@Query('name') name: string) {
+    if (!name || name.trim() === '') {
+      throw new BadRequestException('Debe proporcionar un nombre válido');
+    }
+    return this.suppliersService.findByName(name);
   }
 
   @Get(':id')
