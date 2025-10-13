@@ -10,6 +10,8 @@ import { PosModule } from './pos/pos.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { SuppliersModule } from './suppliers/suppliers.module';
+import { RoomsModule } from './rooms/rooms.module';
+import { BedsModule } from './beds/beds.module';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { SuppliersModule } from './suppliers/suppliers.module';
     HospitalBedsModule,
     PosModule,
     SuppliersModule,
+    RoomsModule,
+    BedsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
