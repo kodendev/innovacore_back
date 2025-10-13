@@ -12,6 +12,7 @@ import { ConfigModule } from '@nestjs/config';
 import { SuppliersModule } from './suppliers/suppliers.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { BedsModule } from './beds/beds.module';
+import { BedMenuModule } from './bed-menu/bed-menu.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { BedsModule } from './beds/beds.module';
     SuppliersModule,
     RoomsModule,
     BedsModule,
+    BedMenuModule,
   ],
   controllers: [AppController],
   providers: [AppService],

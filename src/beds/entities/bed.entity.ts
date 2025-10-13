@@ -1,5 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { Room } from 'src/rooms/entities/room.entity';
+import { BedMenu } from 'src/bed-menu/entities/bed-menu.entity';
 
 @Entity({ name: 'beds' })
 export class Bed {
@@ -18,6 +25,9 @@ export class Bed {
 
   @Column()
   roomId: number; // FK a Room
+
+  @OneToMany(() => BedMenu, (bedMenu) => bedMenu.bed)
+  bedMenus: BedMenu[];
 
   // Luego podremos agregar columna pacienteId cuando tengamos entidad Patient
 }

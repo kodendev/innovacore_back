@@ -39,6 +39,21 @@ export class RoomsController {
     return this.roomsService.create(createRoomDto);
   }
 
+  @Get('overview')
+  @ApiOperation({
+    summary:
+      'Obtener vista general de habitaciones con camas y menús asignados',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de habitaciones con camas y menús asignados',
+    type: [Room],
+    isArray: true,
+  })
+  async getRoomsOverview() {
+    return this.roomsService.getRoomsOverview();
+  }
+
   @Get()
   @ApiOperation({ summary: 'Obtener todas las habitaciones' })
   @ApiResponse({

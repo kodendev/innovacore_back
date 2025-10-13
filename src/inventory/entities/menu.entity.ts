@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { MenuProduct } from './menu_product.entity';
 import { MenuType } from './menu_types.entity';
+import { BedMenu } from 'src/bed-menu/entities/bed-menu.entity';
 
 // Menu               Product
 //  └── quantity 🟩       └── nombre, etc.
@@ -51,4 +52,7 @@ export class Menu {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToMany(() => BedMenu, (bedMenu) => bedMenu.menu)
+  bedMenus: BedMenu[];
 }

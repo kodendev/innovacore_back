@@ -17,8 +17,29 @@ export class RoomsService {
     return this.roomRepository.save(room);
   }
 
+  async getRoomsOverview(): Promise<Room[]> {
+    return this.roomRepository.find({
+      relations: {
+        beds: {
+          bedMenus: {
+            menu: true,
+          },
+        },
+      },
+      order: {
+        id: 'ASC',
+        beds: {
+          id: 'ASC',
+        },
+      },
+    });
+  }
+
   findAll() {
-    return this.roomRepository.find({ relations: ['beds'] });
+    return this.roomRepository.find({
+      relations: ['beds', 'beds.bedMenus', 'beds.bedMenus.menu'],
+      order: { id: 'ASC', beds: { id: 'ASC' } },
+    });
   }
 
   findOne(id: number) {
