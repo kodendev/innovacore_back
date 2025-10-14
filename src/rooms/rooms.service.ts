@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Room } from './entities/room.entity';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
+import { RoomFilterDto } from './dto/room-filter.dto';
 
 @Injectable()
 export class RoomsService {
@@ -44,6 +45,52 @@ export class RoomsService {
 
   findOne(id: number) {
     return this.roomRepository.findOne({ where: { id }, relations: ['beds'] });
+  }
+
+  async findWithFilters(filters: RoomFilterDto): Promise<Room[]> {
+    const query = this.roomRepository
+      .createQueryBuilder('room')
+      .leftJoinAndSelect('room.beds', 'bed')
+      .leftJoinAndSelect('bed.bedMenus', 'bedMenu')
+      .leftJoinAndSelect('bedMenu.menu', 'menu');
+
+    // Filtros seguros
+    if (filters.roomStatus) {
+      query.andWhere('room.status = :roomStatus', {
+        roomStatus: filters.roomStatus,
+      });
+    }
+
+    if (filters.floor !== undefined && !isNaN(filters.floor)) {
+      query.andWhere('room.floor = :floor', { floor: filters.floor });
+    }
+
+    if (filters.bedStatus) {
+      query.andWhere('bed.status = :bedStatus', {
+        bedStatus: filters.bedStatus,
+      });
+    }
+
+    if (filters.menuConsumed !== undefined) {
+      query.andWhere('bedMenu.consumed = :menuConsumed', {
+        menuConsumed: filters.menuConsumed,
+      });
+    }
+
+    if (filters.menuId !== undefined && !isNaN(filters.menuId)) {
+      query.andWhere('menu.id = :menuId', { menuId: filters.menuId });
+    }
+
+    if (filters.name) {
+      query.andWhere('room.name ILIKE :name', { name: `%${filters.name}%` });
+    }
+
+    query
+      .orderBy('room.id', 'ASC')
+      .addOrderBy('bed.id', 'ASC')
+      .addOrderBy('bedMenu.id', 'ASC');
+
+    return query.getMany();
   }
 
   async update(id: number, updateRoomDto: UpdateRoomDto) {

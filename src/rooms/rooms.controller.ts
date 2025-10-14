@@ -6,12 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Room } from './entities/room.entity';
+import { RoomFilterDto } from './dto/room-filter.dto';
 
 @ApiTags('Habitaciones')
 @Controller('rooms')
@@ -64,6 +66,18 @@ export class RoomsController {
   })
   findAll() {
     return this.roomsService.findAll();
+  }
+
+  @Get('filters')
+  @ApiOperation({ summary: 'Obtener habitaciones con filtros avanzados' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de habitaciones filtradas',
+    type: [Room],
+    isArray: true,
+  })
+  async findWithFilters(@Query() filters: RoomFilterDto) {
+    return this.roomsService.findWithFilters(filters);
   }
 
   @Get(':id')
