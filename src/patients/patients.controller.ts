@@ -11,7 +11,7 @@ import { PatientsService } from './patients.service';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
 import { AssignBedDto } from './dto/assign-bed.dto';
-import { AddStatusDto } from './dto/add-status.dto';
+import { AddPatientStatusDto } from './dto/add-status.dto';
 
 @Controller('patients')
 export class PatientsController {
@@ -48,7 +48,7 @@ export class PatientsController {
   }
 
   @Post(':id/add-status')
-  addStatus(@Param('id') id: string, @Body() dto: AddStatusDto) {
+  addStatus(@Param('id') id: string, @Body() dto: AddPatientStatusDto) {
     return this.patientsService.addStatus(+id, dto);
   }
 }

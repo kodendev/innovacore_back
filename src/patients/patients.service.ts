@@ -6,9 +6,9 @@ import { PatientStatus } from './entities/patient-status.entity';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
 import { AssignBedDto } from './dto/assign-bed.dto';
-import { AddStatusDto } from './dto/add-status.dto';
 import { Bed } from 'src/beds/entities/bed.entity';
 import { User } from 'src/partners/entities/user.entity';
+import { AddPatientStatusDto } from './dto/add-status.dto';
 
 @Injectable()
 export class PatientsService {
@@ -97,28 +97,38 @@ export class PatientsService {
   }
 
   async assignBed(id: number, dto: AssignBedDto) {
-    const patient = await this.findOne(id);
-    const bed = await this.bedRepo.findOne({ where: { id: dto.bedId } });
-    if (!bed) throw new NotFoundException('Cama no encontrada');
+    const patient = await this.patientRepo.findOne({ where: { id } });
+    if (!patient) throw new NotFoundException(`Patient ${id} not found`);
 
-    patient.bed = bed;
+    if (dto.bedId === null) {
+      patient.bed = null;
+    } else if (dto.bedId !== undefined) {
+      const bed = await this.bedRepo.findOne({ where: { id: dto.bedId } });
+      if (!bed) throw new NotFoundException(`Bed ${dto.bedId} not found`);
+      patient.bed = bed;
+    }
+
     return this.patientRepo.save(patient);
   }
 
-  async addStatus(id: number, dto: AddStatusDto) {
-    const patient = await this.findOne(id);
-    const status = this.statusRepo.create({
-      statusType: dto.statusType,
-      notes: dto.notes,
-      patient,
+  async addStatus(patientId: number, dto: AddPatientStatusDto) {
+    const patient = await this.patientRepo.findOne({
+      where: { id: patientId },
     });
+    if (!patient) throw new NotFoundException(`Patient ${patientId} not found`);
 
-    if (dto.userId) {
-      const user = await this.userRepo.findOne({ where: { id: dto.userId } });
-      if (user) status.updatedBy = user;
-    }
+    const user = await this.userRepo.findOne({ where: { id: dto.userId } });
+    if (!user) throw new NotFoundException(`User ${dto.userId} not found`);
 
-    await this.statusRepo.save(status);
-    return this.findOne(id);
+    const status = this.statusRepo.create({
+      patient: patient,
+      changedBy: user,
+      statusType: dto.statusType,
+      dietType: dto.dietType,
+      notes: dto.description,
+      timestamp: new Date(),
+    } as Partial<PatientStatus>);
+
+    return this.statusRepo.save(status);
   }
 }

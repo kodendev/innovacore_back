@@ -5,6 +5,7 @@ import { Room } from './entities/room.entity';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { RoomFilterDto } from './dto/room-filter.dto';
+import { RoomOverview } from './types/roomResponseType';
 
 @Injectable()
 export class RoomsService {
@@ -18,12 +19,16 @@ export class RoomsService {
     return this.roomRepository.save(room);
   }
 
-  async getRoomsOverview(): Promise<Room[]> {
-    return this.roomRepository.find({
+  async getRoomsOverview(): Promise<RoomOverview[]> {
+    // Traemos todo con relaciones
+    const rooms = await this.roomRepository.find({
       relations: {
         beds: {
           bedMenus: {
             menu: true,
+          },
+          patients: {
+            statuses: true,
           },
         },
       },
@@ -31,14 +36,54 @@ export class RoomsService {
         id: 'ASC',
         beds: {
           id: 'ASC',
+          patients: {
+            statuses: {
+              createdAt: 'ASC', // historial ordenado cronológicamente
+            },
+          },
         },
       },
     });
+
+    // Procesamos cada paciente para agregar currentStatus y eliminar el historial completo
+    const roomsWithCurrentStatus = rooms.map((room) => ({
+      ...room,
+      beds: room.beds.map((bed) => ({
+        ...bed,
+        patients: bed.patients.map((patient) => {
+          const sortedStatuses = patient.statuses.sort(
+            (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+          );
+          const currentStatus = sortedStatuses[0] || null;
+
+          return {
+            id: patient.id,
+            name: patient.name,
+            age: patient.age,
+            diagnosis: patient.diagnosis,
+            currentStatus: currentStatus
+              ? {
+                  statusType: currentStatus.statusType,
+                  dietType: currentStatus.dietType,
+                  notes: currentStatus.notes,
+                }
+              : null,
+          };
+        }),
+      })),
+    }));
+
+    return roomsWithCurrentStatus;
   }
 
   findAll() {
     return this.roomRepository.find({
-      relations: ['beds', 'beds.bedMenus', 'beds.bedMenus.menu'],
+      relations: [
+        'beds',
+        'beds.bedMenus',
+        'beds.bedMenus.menu',
+        'beds.patients',
+      ],
       order: { id: 'ASC', beds: { id: 'ASC' } },
     });
   }

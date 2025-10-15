@@ -15,10 +15,13 @@ export class PatientStatus {
   id: number;
 
   @Column()
-  statusType: string; // ej: "Dieta líquida", "Post-operatorio", etc.
+  statusType: string;
 
   @Column({ nullable: true })
   notes: string;
+
+  @Column({ nullable: true })
+  dietType?: 'liquida' | 'solida' | 'blanda' | 'enteral';
 
   @CreateDateColumn()
   createdAt: Date;
