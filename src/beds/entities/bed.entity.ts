@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { Room } from 'src/rooms/entities/room.entity';
 import { BedMenu } from 'src/bed-menu/entities/bed-menu.entity';
+import { Patient } from 'src/patients/entities/patient.entity';
 
 @Entity({ name: 'beds' })
 export class Bed {
@@ -29,5 +30,6 @@ export class Bed {
   @OneToMany(() => BedMenu, (bedMenu) => bedMenu.bed)
   bedMenus: BedMenu[];
 
-  // Luego podremos agregar columna pacienteId cuando tengamos entidad Patient
+  @OneToMany(() => Patient, (patient) => patient.bed)
+  patients: Patient[];
 }

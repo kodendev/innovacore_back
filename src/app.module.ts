@@ -13,6 +13,7 @@ import { SuppliersModule } from './suppliers/suppliers.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { BedsModule } from './beds/beds.module';
 import { BedMenuModule } from './bed-menu/bed-menu.module';
+import { PatientsModule } from './patients/patients.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { BedMenuModule } from './bed-menu/bed-menu.module';
     RoomsModule,
     BedsModule,
     BedMenuModule,
+    PatientsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
