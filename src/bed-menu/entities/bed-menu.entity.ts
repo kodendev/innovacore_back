@@ -23,7 +23,7 @@ export class BedMenu {
   quantity: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  assignedAt: Date;
+  assignedAt: Date | null;
 
   @Column({ default: false })
   consumed: boolean;

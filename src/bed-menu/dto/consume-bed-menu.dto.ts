@@ -1,11 +1,20 @@
 // dto/consume-bed-menu.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, Min } from 'class-validator';
+import { IsInt, IsOptional, Min } from 'class-validator';
 
 export class ConsumeBedMenuDto {
   @ApiProperty({ description: 'ID del bedMenu a consumir', example: 1 })
   @IsInt()
   bedMenuId: number;
+
+  @ApiProperty({
+    description: 'ID de la cama (opcional pero recomendado para validación)',
+    example: 1,
+    required: false,
+  })
+  @IsOptional()
+  @IsInt()
+  bedId?: number;
 
   @ApiProperty({ description: 'Cantidad de veces a consumir', example: 1 })
   @IsInt()
