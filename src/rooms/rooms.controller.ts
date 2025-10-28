@@ -44,7 +44,7 @@ export class RoomsController {
   @Get('overview')
   @ApiOperation({
     summary:
-      'Obtener vista general de habitaciones con camas y menús asignados',
+      'Obtener vista general de habitaciones con camas y menús asignados (ideal para el trackeo)',
   })
   @ApiResponse({
     status: 200,
@@ -57,10 +57,12 @@ export class RoomsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Obtener todas las habitaciones' })
+  @ApiOperation({
+    summary: 'Obtener todas las habitaciones con su menú mas reciente/activo',
+  })
   @ApiResponse({
     status: 200,
-    description: 'Lista de habitaciones',
+    description: 'Lista de habitaciones con su menú más reciente/activo',
     type: [Room],
     isArray: true,
   })
