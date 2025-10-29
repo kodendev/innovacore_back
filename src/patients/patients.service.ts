@@ -114,6 +114,7 @@ export class PatientsService {
   async addStatus(patientId: number, dto: AddPatientStatusDto) {
     const patient = await this.patientRepo.findOne({
       where: { id: patientId },
+      relations: ['statuses'],
     });
     if (!patient) throw new NotFoundException(`Patient ${patientId} not found`);
 
@@ -129,6 +130,39 @@ export class PatientsService {
       timestamp: new Date(),
     } as Partial<PatientStatus>);
 
-    return this.statusRepo.save(status);
+    const savedStatus = await this.statusRepo.save(status);
+
+    const lastStatus =
+      (patient.statuses ?? []).slice().sort((a, b) => {
+        const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return tb - ta;
+      })[0] ?? null;
+
+    let needsReview = patient.needsReview ?? false;
+
+    if (dto.statusType === 'alta') {
+      // dar de alta limpia la revisión
+      needsReview = false;
+    } else {
+      if (!lastStatus) {
+        // si no había historial, consideramos que es relevante
+        needsReview = true;
+      } else {
+        const statusChanged = lastStatus.statusType !== dto.statusType;
+        const dietChanged =
+          (lastStatus.dietType ?? null) !== (dto.dietType ?? null);
+        if (statusChanged || dietChanged) needsReview = true;
+        // si no cambió nada relevante, dejamos needsReview tal como estaba
+      }
+    }
+
+    // actualizar paciente sólo si cambió la flag
+    if (patient.needsReview !== needsReview) {
+      patient.needsReview = needsReview;
+      await this.patientRepo.save(patient);
+    }
+
+    return savedStatus;
   }
 }

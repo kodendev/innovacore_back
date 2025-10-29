@@ -40,4 +40,7 @@ export class Patient {
 
   @Column({ name: 'bed_id', nullable: true })
   bedId?: number;
+
+  @Column({ name: 'needsReview', nullable: true, default: false })
+  needsReview?: boolean;
 }

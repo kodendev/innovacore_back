@@ -158,9 +158,8 @@ export class RoomsService {
             name: p.name,
             age: p.age ?? null,
             diagnosis: p.diagnosis ?? null,
-            // compatibilidad con la forma antigua: currentStatus con campos
+            needsReview: p.needsReview ?? false,
             currentStatus,
-            // mantengo otros campos que devolvías antes
             documentNumber: p.documentNumber ?? null,
             active: p.active ?? true,
             bedId: p.bedId ?? null,
