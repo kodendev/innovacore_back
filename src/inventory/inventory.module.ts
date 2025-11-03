@@ -51,5 +51,6 @@ import { CategoryService } from './services/category.service';
     InventoryService,
     CategoryService,
   ],
+  exports: [ProductService],
 })
 export class InventoryModule {}
