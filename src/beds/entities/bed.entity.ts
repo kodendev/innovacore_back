@@ -4,18 +4,20 @@ import {
   Column,
   ManyToOne,
   OneToMany,
+  Unique,
 } from 'typeorm';
 import { Room } from 'src/rooms/entities/room.entity';
 import { BedMenu } from 'src/bed-menu/entities/bed-menu.entity';
 import { Patient } from 'src/patients/entities/patient.entity';
 
 @Entity({ name: 'beds' })
+@Unique(['name', 'room'])
 export class Bed {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
-  name: string; // Ej: "Cama 301A"
+  @Column()
+  name: string;
 
   @Column({ default: 'available' })
   status: 'available' | 'occupied' | 'maintenance';
