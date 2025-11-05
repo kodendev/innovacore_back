@@ -9,6 +9,7 @@ import {
 import { Room } from 'src/rooms/entities/room.entity';
 import { BedMenu } from 'src/bed-menu/entities/bed-menu.entity';
 import { Patient } from 'src/patients/entities/patient.entity';
+import { MinLength } from 'class-validator';
 
 @Entity({ name: 'beds' })
 @Unique(['name', 'room'])
@@ -17,6 +18,7 @@ export class Bed {
   id: number;
 
   @Column()
+  @MinLength(5)
   name: string;
 
   @Column({ default: 'available' })
