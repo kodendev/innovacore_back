@@ -338,56 +338,6 @@ export class RoomsService {
     });
   }
 
-  // async findWithFilters(filters: RoomFilterDto): Promise<Room[]> {
-  //   const query = this.roomRepository
-  //     .createQueryBuilder('room')
-  //     .leftJoinAndSelect('room.beds', 'bed')
-  //     .leftJoinAndSelect('bed.bedMenus', 'bedMenu')
-  //     .leftJoinAndSelect('bedMenu.menu', 'menu')
-  //     .leftJoinAndSelect('bed.patients', 'patient')
-  //     .leftJoinAndSelect('patient.statuses', 'patientStatus');
-
-  //   // Filtros seguros
-  //   if (filters.roomStatus) {
-  //     query.andWhere('room.status = :roomStatus', {
-  //       roomStatus: filters.roomStatus,
-  //     });
-  //   }
-
-  //   if (filters.floor !== undefined && !isNaN(filters.floor)) {
-  //     query.andWhere('room.floor = :floor', { floor: filters.floor });
-  //   }
-
-  //   if (filters.bedStatus) {
-  //     query.andWhere('bed.status = :bedStatus', {
-  //       bedStatus: filters.bedStatus,
-  //     });
-  //   }
-
-  //   if (filters.menuConsumed !== undefined) {
-  //     query.andWhere('bedMenu.consumed = :menuConsumed', {
-  //       menuConsumed: filters.menuConsumed,
-  //     });
-  //   }
-
-  //   if (filters.menuId !== undefined && !isNaN(filters.menuId)) {
-  //     query.andWhere('menu.id = :menuId', { menuId: filters.menuId });
-  //   }
-
-  //   if (filters.name) {
-  //     query.andWhere('room.name ILIKE :name', { name: `%${filters.name}%` });
-  //   }
-
-  //   query
-  //     .orderBy('room.id', 'ASC')
-  //     .addOrderBy('bed.id', 'ASC')
-  //     .addOrderBy('bedMenu.id', 'DESC');
-
-  //   const rooms = await query.getMany();
-
-  //   return this.mapRoomsWithActiveBedMenus(rooms);
-  // }
-
   async update(id: number, updateRoomDto: UpdateRoomDto) {
     await this.roomRepository.update(id, updateRoomDto);
     return this.findOne(id);
