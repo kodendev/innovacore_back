@@ -5,7 +5,7 @@ import { Room } from './entities/room.entity';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { RoomFilterDto } from './dto/room-filter.dto';
-import { RoomOverview } from './types/roomResponseType';
+import { MappedRoom, RoomOverview } from './types/roomResponseType';
 import { BedMenu } from 'src/bed-menu/entities/bed-menu.entity';
 
 @Injectable()
@@ -192,14 +192,17 @@ export class RoomsService {
     return this.roomRepository.findOne({ where: { id }, relations: ['beds'] });
   }
 
-  async findWithFilters(filters: RoomFilterDto): Promise<Room[]> {
+  async findWithFilters(filters: RoomFilterDto): Promise<MappedRoom[]> {
     const query = this.roomRepository
       .createQueryBuilder('room')
       .leftJoinAndSelect('room.beds', 'bed')
       .leftJoinAndSelect('bed.bedMenus', 'bedMenu')
-      .leftJoinAndSelect('bedMenu.menu', 'menu');
+      .leftJoinAndSelect('bedMenu.menu', 'menu')
+      // Agregar relaciones de pacientes como en findAll
+      .leftJoinAndSelect('bed.patients', 'patient')
+      .leftJoinAndSelect('patient.statuses', 'patientStatus');
 
-    // Filtros seguros
+    // Filtros seguros (mantener como están)
     if (filters.roomStatus) {
       query.andWhere('room.status = :roomStatus', {
         roomStatus: filters.roomStatus,
@@ -233,9 +236,106 @@ export class RoomsService {
     query
       .orderBy('room.id', 'ASC')
       .addOrderBy('bed.id', 'ASC')
-      .addOrderBy('bedMenu.id', 'ASC');
+      .addOrderBy('bedMenu.assignedAt', 'DESC'); // Cambiar orden para obtener más recientes primero
 
-    return query.getMany();
+    const rooms = await query.getMany();
+
+    // Aplicar la misma lógica de mapeo que findAll
+    return this.mapRoomsWithActiveBedMenus(rooms);
+  }
+
+  // Extraer la lógica de mapeo a un método separado para reutilizar
+  private mapRoomsWithActiveBedMenus(rooms: Room[]) {
+    // Helper: ordena y elige la bedMenu "activa" (copiar de findAll)
+    const pickActiveBedMenu = (bedMenus?: BedMenu[] | null) => {
+      const arr = (bedMenus ?? []).slice();
+      if (arr.length === 0) return null;
+      arr.sort((a, b) => {
+        const ta = a.assignedAt ? new Date(a.assignedAt).getTime() : 0;
+        const tb = b.assignedAt ? new Date(b.assignedAt).getTime() : 0;
+        return tb - ta;
+      });
+      const notConsumed = arr.find((bm) => !bm.consumed);
+      return notConsumed ?? arr[0];
+    };
+
+    // Helper: elegir el último status del paciente (copiar de findAll)
+    const pickCurrentStatus = (
+      statuses?:
+        | {
+            createdAt?: Date;
+            statusType?: string;
+            dietType?: string | undefined;
+            notes?: string;
+          }[]
+        | null,
+    ) => {
+      const arr = (statuses ?? []).slice();
+      if (arr.length === 0) return null;
+      arr.sort((a, b) => {
+        const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return tb - ta;
+      });
+      const s = arr[0];
+      return {
+        statusType: s.statusType ?? '',
+        dietType: s.dietType ?? null,
+        notes: s.notes ?? '',
+      };
+    };
+
+    // Mapear rooms (copiar lógica exacta de findAll)
+    return rooms.map((room) => {
+      const mappedBeds = (room.beds ?? []).map((bed) => {
+        const active = pickActiveBedMenu(bed.bedMenus);
+
+        const currentBedMenu = active
+          ? {
+              id: active.id,
+              bedId: active.bedId,
+              menuId: active.menuId,
+              menu: active.menu,
+              quantity: active.quantity,
+              assignedAt: active.assignedAt,
+              consumed: active.consumed,
+            }
+          : null;
+
+        const mappedPatients = (bed.patients ?? []).map((p) => {
+          const currentStatus = pickCurrentStatus(p.statuses);
+
+          return {
+            id: p.id,
+            name: p.name,
+            age: p.age ?? null,
+            diagnosis: p.diagnosis ?? null,
+            needsReview: p.needsReview ?? false,
+            currentStatus,
+            documentNumber: p.documentNumber ?? null,
+            active: p.active ?? true,
+            bedId: p.bedId ?? null,
+          };
+        });
+
+        return {
+          id: bed.id,
+          name: bed.name,
+          status: bed.status,
+          roomId: bed.roomId,
+          currentBedMenu,
+          patients: mappedPatients,
+        };
+      });
+
+      return {
+        id: room.id,
+        name: room.name,
+        floor: room.floor,
+        status: room.status,
+        beds: mappedBeds,
+      };
+    });
   }
 
   async update(id: number, updateRoomDto: UpdateRoomDto) {
