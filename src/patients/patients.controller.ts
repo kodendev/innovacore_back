@@ -6,12 +6,16 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { PatientsService } from './patients.service';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
 import { AssignBedDto } from './dto/assign-bed.dto';
 import { AddPatientStatusDto } from './dto/add-status.dto';
+import { PatientFilterDto } from './dto/patient-filters.dto';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Patient } from './entities/patient.entity';
 
 @Controller('patients')
 export class PatientsController {
@@ -25,6 +29,20 @@ export class PatientsController {
   @Get()
   findAll() {
     return this.patientsService.findAll();
+  }
+
+  @Get('filters')
+  @ApiOperation({
+    summary: 'Obtener pacientes con filtros avanzados',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de pacientes filtrados',
+    type: [Patient],
+    isArray: true,
+  })
+  async findWithFilters(@Query() filters: PatientFilterDto) {
+    return this.patientsService.findWithFilters(filters);
   }
 
   @Get(':id')
