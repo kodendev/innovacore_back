@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: sanatorio_dev_db
+    restart: always
+    environment:
+      POSTGRES_USER: lsabus
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: innova_core
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
+
