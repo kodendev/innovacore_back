@@ -40,7 +40,7 @@ export class PatientsService {
 
     const patient = this.patientRepo.create({
       ...data,
-      bed, // relación
+      bed,
     });
 
     return this.patientRepo.save(patient);
