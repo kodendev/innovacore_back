@@ -9,6 +9,7 @@ import { AssignBedDto } from './dto/assign-bed.dto';
 import { Bed } from 'src/beds/entities/bed.entity';
 import { User } from 'src/partners/entities/user.entity';
 import { AddPatientStatusDto } from './dto/add-status.dto';
+import { PatientFilterDto } from './dto/patient-filters.dto';
 
 @Injectable()
 export class PatientsService {
@@ -39,7 +40,7 @@ export class PatientsService {
 
     const patient = this.patientRepo.create({
       ...data,
-      bed, // relación
+      bed,
     });
 
     return this.patientRepo.save(patient);
@@ -50,6 +51,76 @@ export class PatientsService {
       relations: ['bed', 'statuses', 'statuses.updatedBy'],
       order: { id: 'ASC' },
     });
+  }
+
+  async findWithFilters(filters: PatientFilterDto): Promise<Patient[]> {
+    const query = this.patientRepo
+      .createQueryBuilder('patient')
+      .leftJoinAndSelect('patient.bed', 'bed')
+      .leftJoinAndSelect('patient.statuses', 'patientStatus')
+      .leftJoinAndSelect('patientStatus.updatedBy', 'updatedBy');
+
+    // Filtro por nombre (búsqueda parcial, insensible a mayúsculas)
+    if (filters.name) {
+      query.andWhere('patient.name ILIKE :name', {
+        name: `%${filters.name}%`,
+      });
+    }
+
+    // Filtro por documento
+    if (filters.documentNumber) {
+      query.andWhere('patient.documentNumber ILIKE :documentNumber', {
+        documentNumber: `%${filters.documentNumber}%`,
+      });
+    }
+
+    // Filtro por estado activo/inactivo
+    if (filters.active !== undefined) {
+      query.andWhere('patient.active = :active', {
+        active: filters.active,
+      });
+    }
+
+    // ⬅️ FILTRO SEGURO: Por statusType del estado más reciente usando EXISTS
+    if (filters.statusType) {
+      query.andWhere(
+        `EXISTS (
+        SELECT 1 FROM patient_statuses ps 
+        WHERE ps.patient_id = patient.id 
+        AND ps."statusType" = :statusType 
+        AND ps.id = (
+          SELECT MAX(ps2.id) 
+          FROM patient_statuses ps2 
+          WHERE ps2.patient_id = patient.id
+        )
+      )`,
+        { statusType: filters.statusType },
+      );
+    }
+
+    // ⬅️ FILTRO SEGURO: Por dietType del estado más reciente usando EXISTS
+    if (filters.dietType) {
+      query.andWhere(
+        `EXISTS (
+        SELECT 1 FROM patient_statuses ps 
+        WHERE ps.patient_id = patient.id 
+        AND ps."dietType" = :dietType 
+        AND ps.id = (
+          SELECT MAX(ps2.id) 
+          FROM patient_statuses ps2 
+          WHERE ps2.patient_id = patient.id
+        )
+      )`,
+        { dietType: filters.dietType },
+      );
+    }
+
+    // Ordenar por ID del paciente y por fecha del status (más reciente primero)
+    query
+      .orderBy('patient.id', 'ASC')
+      .addOrderBy('patientStatus.createdAt', 'DESC');
+
+    return await query.getMany();
   }
 
   async findOne(id: number) {
